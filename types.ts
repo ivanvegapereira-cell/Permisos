@@ -33,6 +33,7 @@ export interface PermissionFormData {
 export interface PermissionRecord extends PermissionFormData {
   id: string;
   timestamp: number;
+  status?: 'PENDING' | 'REVIEWED' | 'ARCHIVED';
 }
 
-export type AppState = 'IDLE' | 'SCANNING' | 'FORM' | 'SUBMITTING' | 'SUCCESS';
+export type AppState = 'IDLE' | 'FORM' | 'SUBMITTING' | 'SUCCESS' | 'ADMIN_LOGIN' | 'ADMIN_DASHBOARD';
