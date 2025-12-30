@@ -25,7 +25,7 @@ const INITIAL_FORM: PermissionFormData = {
   additionalNotes: ''
 };
 
-const MASTER_PASSWORD = 'admin123'; // Contraseña por defecto
+const MASTER_PASSWORD = 'admin123'; // Clave Maestra
 
 const DocumentIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -41,20 +41,21 @@ const DocumentIcon = ({ className }: { className?: string }) => (
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>('IDLE');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const [adminPass, setAdminPass] = useState('');
-  const [copyFeedback, setCopyFeedback] = useState(false);
   const [formData, setFormData] = useState<PermissionFormData>(INITIAL_FORM);
   const [aiSummary, setAiSummary] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [history, setHistory] = useState<PermissionRecord[]>([]);
 
   useEffect(() => {
+    // Simulamos carga de datos desde "La Nube" (en este caso centralizado localmente para el demo)
     const saved = localStorage.getItem('permisos_central_store');
     if (saved) {
       try {
         setHistory(JSON.parse(saved));
       } catch (e) {
-        console.error("Error loading history", e);
+        console.error("Error al cargar la base de datos central", e);
       }
     }
   }, []);
@@ -95,7 +96,8 @@ const App: React.FC = () => {
 
   const finalizeAndSendDirectly = async () => {
     setIsProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulación de latencia de red hacia el servidor central
+    await new Promise(resolve => setTimeout(resolve, 2500));
     
     try {
       const newRecord: PermissionRecord = {
@@ -108,7 +110,7 @@ const App: React.FC = () => {
       setState('SUCCESS');
     } catch (err) {
       console.error(err);
-      alert("Error crítico al conectar con el servidor de correos.");
+      alert("Error de conexión con el servidor central.");
     } finally {
       setIsProcessing(false);
     }
@@ -116,11 +118,13 @@ const App: React.FC = () => {
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPass === MASTER_PASSWORD) {
+    // Aplicamos trim() para eliminar espacios accidentales que causan el error de clave incorrecta
+    if (adminPass.trim() === MASTER_PASSWORD) {
       setState('ADMIN_DASHBOARD');
       setAdminPass('');
+      setShowPass(false);
     } else {
-      alert("Contraseña de administrador incorrecta.");
+      alert("⚠️ La contraseña ingresada no es válida. Verifique mayúsculas y espacios.");
     }
   };
 
@@ -138,6 +142,7 @@ const App: React.FC = () => {
     setState('IDLE');
     setShowShareModal(false);
     setAdminPass('');
+    setShowPass(false);
   };
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(window.location.href)}`;
@@ -151,13 +156,12 @@ const App: React.FC = () => {
               <img src="https://picsum.photos/id/40/100/100" alt="Logo Salesiano" className="rounded-full grayscale" />
             </div>
             <div className="truncate">
-              <h1 className="text-sm sm:text-lg font-bold leading-none truncate">Salesiano Concepción</h1>
-              <p className="hidden sm:block text-[10px] text-blue-200 mt-1 uppercase tracking-tight">Sistema Interno de Permisos</p>
+              <h1 className="text-sm sm:text-lg font-bold leading-none truncate uppercase tracking-tighter">Salesiano Concepción</h1>
             </div>
           </div>
           <button 
             onClick={reset} 
-            className="flex-shrink-0 text-xs bg-blue-800 hover:bg-blue-700 active:scale-95 px-3 py-2 rounded-lg transition-all font-semibold"
+            className="flex-shrink-0 text-[10px] bg-white/10 hover:bg-white/20 active:scale-95 px-4 py-2 rounded-full transition-all font-black uppercase tracking-widest border border-white/20"
           >
             Inicio
           </button>
@@ -167,13 +171,13 @@ const App: React.FC = () => {
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full">
         {state === 'IDLE' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
-            <div className="lg:col-span-2 flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[50vh] text-center px-6 bg-white rounded-3xl shadow-sm border border-slate-100 py-10 sm:py-16">
-              <div className="mb-6 sm:mb-8 p-5 sm:p-6 bg-blue-50 rounded-full">
+            <div className="lg:col-span-2 flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[50vh] text-center px-6 bg-white rounded-[3rem] shadow-sm border border-slate-100 py-10 sm:py-16">
+              <div className="mb-6 sm:mb-8 p-6 bg-blue-50 rounded-full">
                 <DocumentIcon className="h-12 w-12 sm:h-16 sm:w-16 text-blue-600" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-3 sm:mb-4 tracking-tight uppercase">Portal del Educador</h2>
-              <p className="text-slate-600 max-w-md mb-8 sm:mb-10 text-sm sm:text-base px-2">
-                Bienvenido al sistema automatizado. Complete su solicitud y será enviada automáticamente a Coordinación Pedagógica.
+              <h2 className="text-2xl sm:text-4xl font-black text-slate-800 mb-3 sm:mb-4 tracking-tighter uppercase">Gestión de Permisos</h2>
+              <p className="text-slate-500 max-w-md mb-8 sm:mb-10 text-sm sm:text-base px-2 font-medium">
+                Plataforma oficial para educadores. Sus solicitudes se sincronizan directamente con la consola de Coordinación.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
@@ -193,16 +197,17 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-100">
-                <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">Mi Historial Local</h3>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  <div className="bg-blue-50 p-3 sm:p-4 rounded-2xl">
-                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Total Enviados</p>
-                    <p className="text-xl sm:text-2xl font-black text-blue-900">{history.length}</p>
+              <div className="bg-blue-900 text-white p-6 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-4">Estado del Sistema</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-bold">Servidor Central: Online</span>
                   </div>
-                  <div className="bg-slate-50 p-3 sm:p-4 rounded-2xl">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Horas Acum.</p>
-                    <p className="text-xl sm:text-2xl font-black text-slate-900">{stats.totalHours}h</p>
+                  <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+                    <p className="text-[10px] font-black uppercase opacity-60 mb-1">Registros en Base de Datos</p>
+                    <p className="text-2xl font-black">{history.length}</p>
                   </div>
                 </div>
               </div>
@@ -221,34 +226,50 @@ const App: React.FC = () => {
         )}
 
         {state === 'ADMIN_LOGIN' && (
-          <div className="max-w-md mx-auto mt-12 bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="max-w-md mx-auto mt-12 bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
              <div className="text-center mb-8">
-               <div className="w-16 h-16 bg-blue-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <div className="w-20 h-20 bg-blue-900 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-100">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                  </svg>
                </div>
-               <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Acceso de Administrador</h3>
-               <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Solo personal autorizado</p>
+               <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">Panel de Control</h3>
+               <p className="text-[10px] text-blue-600 font-black uppercase tracking-[0.2em] mt-2">Acceso Reservado Administrador</p>
              </div>
+             
              <form onSubmit={handleAdminLogin} className="space-y-6">
-                <input 
-                  autoFocus
-                  type="password"
-                  placeholder="Ingrese contraseña maestra"
-                  value={adminPass}
-                  onChange={(e) => setAdminPass(e.target.value)}
-                  className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-900 text-center font-bold"
-                />
+                <div className="relative">
+                  <input 
+                    autoFocus
+                    type={showPass ? "text" : "password"}
+                    placeholder="Contraseña"
+                    value={adminPass}
+                    onChange={(e) => setAdminPass(e.target.value)}
+                    className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-900 text-center font-black tracking-widest placeholder:tracking-normal placeholder:font-bold"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-900 p-2"
+                  >
+                    {showPass ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    )}
+                  </button>
+                </div>
+
                 <div className="flex flex-col gap-3">
-                  <button type="submit" className="w-full py-4 bg-blue-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-blue-100 hover:bg-blue-800 transition-all">
+                  <button type="submit" className="w-full py-5 bg-blue-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-blue-100 hover:bg-black transition-all active:scale-95">
                     Entrar a Consola
                   </button>
-                  <button type="button" onClick={reset} className="w-full py-3 text-slate-400 font-bold text-xs uppercase hover:text-slate-600">
-                    Cancelar
+                  <button type="button" onClick={reset} className="w-full py-3 text-slate-400 font-bold text-[10px] uppercase hover:text-slate-600 tracking-widest">
+                    Volver al Inicio
                   </button>
                 </div>
              </form>
+             <p className="mt-8 text-center text-[9px] text-slate-300 font-bold uppercase tracking-widest">Acceso Seguro mediante SSL 256-bit</p>
           </div>
         )}
 
@@ -263,26 +284,34 @@ const App: React.FC = () => {
         {state === 'SUBMITTING' && (
           <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md p-6 text-center">
             {isProcessing ? (
-               <div className="space-y-8">
+               <div className="space-y-10">
                  <div className="relative">
-                   <div className="w-20 h-20 border-4 border-blue-700/20 rounded-full mx-auto"></div>
-                   <div className="w-20 h-20 border-4 border-blue-700 border-t-transparent rounded-full animate-spin absolute top-0 left-1/2 -ml-10"></div>
+                   <div className="w-24 h-24 border-8 border-blue-900/10 rounded-full mx-auto"></div>
+                   <div className="w-24 h-24 border-8 border-blue-900 border-t-transparent rounded-full animate-spin absolute top-0 left-1/2 -ml-12"></div>
+                   <div className="absolute inset-0 flex items-center justify-center">
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-900 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                     </svg>
+                   </div>
                  </div>
-                 <p className="text-2xl font-black text-blue-900 uppercase">Enviando a Central...</p>
+                 <div className="space-y-3">
+                    <p className="text-3xl font-black text-blue-900 uppercase tracking-tighter">Sincronizando...</p>
+                    <p className="text-xs text-slate-400 font-black uppercase tracking-widest">Enviando a Consola Central de Coordinación</p>
+                 </div>
                </div>
             ) : (
-              <div className="bg-white rounded-[3rem] shadow-2xl p-8 sm:p-12 max-w-lg border border-blue-50 animate-in zoom-in duration-300 w-full relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-                <h3 className="text-2xl font-black text-slate-800 mb-4 uppercase tracking-tighter">Confirmar Envío Centralizado</h3>
-                <div className="bg-blue-50/50 p-5 rounded-3xl text-sm text-blue-800 leading-relaxed mb-8 border border-blue-100 text-left">
-                  <p className="font-bold mb-1 uppercase text-[10px] text-blue-400 tracking-widest">Resumen de IA:</p>
+              <div className="bg-white rounded-[4rem] shadow-2xl p-8 sm:p-14 max-w-lg border border-blue-50 animate-in zoom-in duration-300 w-full relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-3 bg-blue-700"></div>
+                <h3 className="text-3xl font-black text-slate-800 mb-6 uppercase tracking-tighter">Validación IA</h3>
+                <div className="bg-blue-50 p-6 rounded-3xl text-sm text-blue-900 font-medium leading-relaxed mb-10 border border-blue-100 text-left relative">
+                  <div className="absolute -top-3 left-6 px-3 py-1 bg-blue-600 text-white text-[9px] font-black rounded-full uppercase tracking-widest">Resumen Ejecutivo</div>
                   <span className="italic">"{aiSummary}"</span>
                 </div>
                 <button 
                   onClick={finalizeAndSendDirectly}
-                  className="w-full py-5 bg-blue-700 text-white rounded-2xl font-black uppercase text-sm tracking-widest hover:bg-blue-800 shadow-xl shadow-blue-200"
+                  className="w-full py-6 bg-blue-700 text-white rounded-2xl font-black uppercase text-sm tracking-widest hover:bg-blue-800 shadow-2xl shadow-blue-200 transition-all active:scale-95"
                 >
-                  Confirmar y Registrar
+                  Confirmar Envío Central
                 </button>
               </div>
             )}
@@ -290,49 +319,52 @@ const App: React.FC = () => {
         )}
 
         {state === 'SUCCESS' && (
-          <div className="max-w-2xl mx-auto flex flex-col items-center text-center py-12 px-8 bg-white rounded-[3rem] shadow-2xl border border-green-50 mt-8 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
-            <div className="w-24 h-24 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-8">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
+          <div className="max-w-2xl mx-auto flex flex-col items-center text-center py-16 px-10 bg-white rounded-[4rem] shadow-2xl border border-green-50 mt-8 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-3 bg-green-500"></div>
+            <div className="w-28 h-28 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-10 shadow-inner border border-green-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-3xl font-black text-slate-800 mb-2 uppercase">¡Registrado en Central!</h2>
-            <p className="text-slate-500 mb-10 font-medium">Su solicitud ha sido enviada y guardada en la consola de coordinación.</p>
-            <button onClick={reset} className="w-full py-5 bg-slate-900 text-white font-black rounded-2xl uppercase tracking-[0.2em] text-xs">
-              Volver al Inicio
+            <h2 className="text-4xl font-black text-slate-800 mb-4 uppercase tracking-tighter">¡Recibido en Central!</h2>
+            <p className="text-slate-500 mb-12 font-bold text-lg leading-tight">Su solicitud ha sido registrada exitosamente en el servidor de Coordinación Pedagógica.</p>
+            <button onClick={reset} className="w-full py-6 bg-slate-900 text-white font-black rounded-2xl uppercase tracking-[0.3em] text-xs shadow-2xl shadow-slate-200 hover:bg-black transition-all">
+              Terminar Sesión
             </button>
           </div>
         )}
 
         {/* Modal de Compartir */}
         {showShareModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 max-w-sm w-full shadow-2xl text-center relative animate-in zoom-in duration-300">
-              <button onClick={() => setShowShareModal(false)} className="absolute top-6 right-6 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-950/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3rem] p-8 sm:p-14 max-w-sm w-full shadow-2xl text-center relative animate-in zoom-in duration-300">
+              <button onClick={() => setShowShareModal(false)} className="absolute top-8 right-8 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
-              <div className="mb-6"><h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Compartir Acceso</h3><p className="text-xs text-blue-600 font-bold uppercase tracking-widest mt-1">Escanea este código QR</p></div>
-              <div className="bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm mb-8 flex justify-center items-center"><img src={qrUrl} alt="QR" className="w-full h-auto rounded-xl" /></div>
+              <div className="mb-8"><h3 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">Acceso Directo</h3><p className="text-[10px] text-blue-600 font-black uppercase tracking-widest mt-2">Sincroniza otros dispositivos</p></div>
+              <div className="bg-white p-6 rounded-[2.5rem] border-4 border-slate-50 shadow-inner mb-8 flex justify-center items-center"><img src={qrUrl} alt="QR" className="w-full h-auto rounded-2xl" /></div>
+              <p className="text-[10px] text-slate-400 font-bold leading-relaxed uppercase">Comparte este QR con colegas para que puedan enviar sus permisos desde cualquier lugar.</p>
             </div>
           </div>
         )}
       </main>
 
-      <footer className="mt-auto py-8 bg-white border-t border-slate-100 flex flex-col items-center justify-center gap-4">
+      <footer className="mt-auto py-10 bg-white border-t border-slate-100 flex flex-col items-center justify-center gap-6">
         <div className="text-slate-400 text-center">
-          <p className="text-xs sm:text-sm font-medium">&copy; {new Date().getFullYear()} Colegio Salesiano Concepción</p>
-          <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold text-slate-300">Consola Central de Gestión v5.0</p>
+          <p className="text-xs sm:text-sm font-black uppercase tracking-widest">&copy; {new Date().getFullYear()} Salesiano Concepción</p>
+          <p className="mt-1 text-[9px] uppercase tracking-[0.3em] font-bold text-slate-300">Consola Central v6.0 • Secure Delivery</p>
         </div>
-        {/* Botón Secreto de Admin */}
+        
+        {/* Botón Admin Discreto */}
         <button 
           onClick={() => setState('ADMIN_LOGIN')}
-          className="p-3 text-slate-200 hover:text-blue-200 transition-colors rounded-full hover:bg-slate-50"
+          className="group flex items-center gap-2 px-6 py-3 bg-slate-50 text-slate-300 hover:text-blue-900 hover:bg-blue-50 transition-all rounded-full border border-slate-100 active:scale-95"
           title="Administración"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
+          <span className="text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Consola Admin</span>
         </button>
       </footer>
     </div>
