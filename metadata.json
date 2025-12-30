@@ -1,0 +1,7 @@
+{
+  "name": "Gestión de Permisos Salesiano Concepción",
+  "description": "Aplicación para la gestión y envío de solicitudes de permisos administrativos mediante escaneo QR y validación inteligente.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
