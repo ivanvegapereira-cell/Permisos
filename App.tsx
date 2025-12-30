@@ -40,6 +40,7 @@ const DocumentIcon = ({ className }: { className?: string }) => (
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>('IDLE');
   const [showAppQR, setShowAppQR] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(false);
   const [formData, setFormData] = useState<PermissionFormData>(INITIAL_FORM);
   const [aiSummary, setAiSummary] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -96,6 +97,12 @@ const App: React.FC = () => {
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 2000);
+  };
+
   const finalizeAndSend = async () => {
     setIsProcessing(true);
     try {
@@ -128,7 +135,9 @@ const App: React.FC = () => {
     setState('IDLE');
   };
 
-  const appQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(window.location.href)}`;
+  // Usamos una URL limpia para el QR
+  const currentUrl = window.location.href;
+  const appQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(currentUrl)}`;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
@@ -246,13 +255,13 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Modal QR de la App */}
+        {/* Modal QR de la App Mejorado */}
         {showAppQR && (
-          <div className="fixed inset-0 z-[100] bg-blue-900/60 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
-            <div className="bg-white p-8 sm:p-12 rounded-[3rem] shadow-2xl max-w-sm w-full text-center relative animate-in zoom-in duration-300">
+          <div className="fixed inset-0 z-[100] bg-blue-950/80 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+            <div className="bg-white p-6 sm:p-10 rounded-[2.5rem] shadow-2xl max-w-sm w-full text-center relative animate-in zoom-in duration-300">
               <button 
                 onClick={() => setShowAppQR(false)}
-                className="absolute top-6 right-6 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 active:scale-90 transition-all"
+                className="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 active:scale-90 transition-all"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
@@ -260,17 +269,51 @@ const App: React.FC = () => {
               </button>
               
               <div className="mb-6">
-                <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Acceso Directo</h3>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Escanea para abrir la app</p>
+                <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Acceso Institucional</h3>
+                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1">Escanea con tu Cámara</p>
               </div>
 
-              <div className="bg-white p-4 rounded-3xl border-4 border-blue-50 shadow-inner mb-6 flex justify-center">
-                <img src={appQrUrl} alt="QR de la App" className="w-full max-w-[200px] h-auto" />
+              <div className="bg-white p-3 rounded-2xl border-2 border-slate-100 shadow-sm mb-6 flex justify-center">
+                <img 
+                  src={appQrUrl} 
+                  alt="QR para entrar a la aplicación" 
+                  className="w-full max-w-[240px] h-auto rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://placehold.co/400x400?text=Error+Cargando+QR";
+                  }}
+                />
               </div>
 
-              <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                Comparte este código con otros educadores para que puedan realizar sus solicitudes rápidamente.
-              </p>
+              <div className="space-y-4">
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                  Si tu teléfono no reconoce el código, puedes usar este botón para copiar el enlace y enviarlo por WhatsApp o correo.
+                </p>
+                
+                <button 
+                  onClick={copyToClipboard}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
+                    copyFeedback 
+                      ? 'bg-green-600 text-white shadow-lg shadow-green-200' 
+                      : 'bg-blue-700 text-white shadow-lg shadow-blue-200 hover:bg-blue-800 active:scale-95'
+                  }`}
+                >
+                  {copyFeedback ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                      ¡Enlace Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      Copiar Enlace Manual
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -393,7 +436,7 @@ const App: React.FC = () => {
 
       <footer className="mt-auto py-8 bg-white border-t border-slate-100 text-slate-400 text-center px-4">
         <p className="text-xs sm:text-sm font-medium">&copy; {new Date().getFullYear()} Colegio Salesiano Concepción</p>
-        <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold">Autogestión de Educadores v3.0 • Mobile & PC Ready</p>
+        <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold">Autogestión de Educadores v3.1 • Mobile & PC Ready</p>
       </footer>
 
       <style>{`
