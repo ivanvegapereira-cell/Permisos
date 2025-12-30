@@ -6,10 +6,10 @@ import {
   ReasonType, 
   AreaType,
   PermissionRecord
-} from './types';
-import Scanner from './components/Scanner';
-import PermissionForm from './components/PermissionForm';
-import { generateFormalEmailBody, validateRequestSummary } from './services/geminiService';
+} from './types.ts';
+import Scanner from './components/Scanner.tsx';
+import PermissionForm from './components/PermissionForm.tsx';
+import { generateFormalEmailBody, validateRequestSummary } from './services/geminiService.ts';
 
 const INITIAL_FORM: PermissionFormData = {
   educatorName: '',
@@ -25,7 +25,6 @@ const INITIAL_FORM: PermissionFormData = {
   additionalNotes: ''
 };
 
-// Custom SVG component representing the permission document with stamp
 const DocumentIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <path d="M7 18H17M7 14H13M7 10H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -45,7 +44,6 @@ const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [history, setHistory] = useState<PermissionRecord[]>([]);
 
-  // Load history from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('permisos_history');
     if (saved) {
@@ -57,12 +55,10 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Save history whenever it changes
   useEffect(() => {
     localStorage.setItem('permisos_history', JSON.stringify(history));
   }, [history]);
 
-  // Statistics Calculation
   const stats = useMemo(() => {
     const currentName = formData.educatorName.trim().toLowerCase();
     const filtered = currentName 
