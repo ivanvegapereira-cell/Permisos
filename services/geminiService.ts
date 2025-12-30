@@ -1,10 +1,13 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { PermissionFormData } from "../types.ts";
+import { PermissionFormData } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAIClient = () => {
+  return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+};
 
 export async function generateFormalEmailBody(data: PermissionFormData): Promise<string> {
+  const ai = getAIClient();
   const prompt = `
     Genera un cuerpo de correo electrónico que simule una PLANTILLA DE FORMULARIO OFICIAL para una solicitud de permiso administrativo. 
     Debe contener TODOS los datos del solicitante de forma estructurada y profesional.
@@ -35,11 +38,12 @@ export async function generateFormalEmailBody(data: PermissionFormData): Promise
     return response.text || "Error al generar la plantilla del formulario.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Error al procesar la solicitud con IA.";
+    return "Error al procesar la solicitud con IA. Por favor, revise su conexión.";
   }
 }
 
 export async function validateRequestSummary(data: PermissionFormData): Promise<{ summary: string; isValid: boolean }> {
+  const ai = getAIClient();
   const prompt = `
     Analiza esta solicitud de permiso y proporciona un resumen ejecutivo corto de 2 líneas.
     Datos: ${JSON.stringify(data)}

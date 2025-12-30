@@ -6,10 +6,10 @@ import {
   ReasonType, 
   AreaType,
   PermissionRecord
-} from './types.ts';
-import Scanner from './components/Scanner.tsx';
-import PermissionForm from './components/PermissionForm.tsx';
-import { generateFormalEmailBody, validateRequestSummary } from './services/geminiService.ts';
+} from './types';
+import Scanner from './components/Scanner';
+import PermissionForm from './components/PermissionForm';
+import { generateFormalEmailBody, validateRequestSummary } from './services/geminiService';
 
 const INITIAL_FORM: PermissionFormData = {
   educatorName: '',
@@ -89,6 +89,7 @@ const App: React.FC = () => {
       setAiSummary(summaryResult.summary);
     } catch (err) {
       console.error(err);
+      setAiSummary("La solicitud está lista para ser procesada.");
     } finally {
       setIsProcessing(false);
     }
