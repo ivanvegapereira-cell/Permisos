@@ -157,12 +157,12 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
 
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-3xl shadow-lg p-5 sm:p-8 space-y-6 sm:space-y-8 max-w-3xl mx-auto border border-blue-50 relative">
-      {/* Dynamic Notifications Section - STICKY */}
-      <div className="sticky top-0 z-20 space-y-2 pointer-events-none">
+      {/* Dynamic Notifications Section - STICKY & ACCESSIBLE */}
+      <div className="sticky top-0 z-20 space-y-2 pointer-events-none" role="alert" aria-live="polite">
         {isCrowdedDay && (
-          <div className="pointer-events-auto p-4 bg-red-50 border-b border-red-200 shadow-lg shadow-red-100/50 flex items-center gap-4 animate-in slide-in-from-top-4 duration-300">
+          <div id="crowded-alert" className="pointer-events-auto p-4 bg-red-50 border-b border-red-200 shadow-lg shadow-red-100/50 flex items-center gap-4 animate-in slide-in-from-top-4 duration-300">
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
@@ -176,14 +176,14 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
         )}
 
         {formData.executionDate && !isWithinDeadline && (
-          <div className={`pointer-events-auto p-4 border-b shadow-lg animate-in slide-in-from-top-2 duration-500 ring-2 ring-white ${
+          <div id="deadline-warning" className={`pointer-events-auto p-4 border-b shadow-lg animate-in slide-in-from-top-2 duration-500 ring-2 ring-white ${
             isCriticalDeadline 
               ? 'bg-red-600 border-red-700 text-white ring-red-200 animate-pulse-subtle' 
               : 'bg-orange-500 border-orange-600 text-white shadow-orange-100'
           }`}>
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isCriticalDeadline ? 'bg-white/20' : 'bg-black/10'}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -203,7 +203,7 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
       <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-4">
         <div className="space-y-1">
           <h2 className="text-xl sm:text-2xl font-black text-blue-900 tracking-tight flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-blue-600 rounded-full inline-block"></span>
+            <span className="w-1.5 h-6 bg-blue-600 rounded-full inline-block" aria-hidden="true"></span>
             Nueva Solicitud
           </h2>
           <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Complete los campos obligatorios</p>
@@ -216,8 +216,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           <h3 className="text-xs font-black text-blue-500 uppercase tracking-[0.2em]">Identificación</h3>
           
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Nombre Completo del Educador</label>
+            <label htmlFor="educatorName" className="block text-xs font-bold text-slate-500 uppercase ml-1">Nombre Completo del Educador</label>
             <select 
+              id="educatorName"
               required
               name="educatorName"
               value={formData.educatorName}
@@ -232,8 +233,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Cargo Institucional</label>
+            <label htmlFor="position" className="block text-xs font-bold text-slate-500 uppercase ml-1">Cargo Institucional</label>
             <input 
+              id="position"
               required
               type="text" 
               name="position"
@@ -245,8 +247,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Hora de contrato (Semanal)</label>
+            <label htmlFor="contractHours" className="block text-xs font-bold text-slate-500 uppercase ml-1">Hora de contrato (Semanal)</label>
             <input 
+              id="contractHours"
               required
               type="number" 
               name="contractHours"
@@ -263,8 +266,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           <h3 className="text-xs font-black text-blue-500 uppercase tracking-[0.2em]">Programación</h3>
           
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Fecha de Solicitud</label>
+            <label htmlFor="requestDate" className="block text-xs font-bold text-slate-500 uppercase ml-1">Fecha de Solicitud</label>
             <input 
+              id="requestDate"
               required
               type="date" 
               name="requestDate"
@@ -276,13 +280,16 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Fecha de Ejecución del Permiso</label>
+            <label htmlFor="executionDate" className="block text-xs font-bold text-slate-500 uppercase ml-1">Fecha de Ejecución del Permiso</label>
             <input 
+              id="executionDate"
               required
               type="date" 
               name="executionDate"
               value={formData.executionDate}
               onChange={handleChange}
+              aria-invalid={!isWithinDeadline && !!formData.executionDate}
+              aria-describedby={!isWithinDeadline ? "deadline-warning" : undefined}
               className={`w-full px-5 py-3 border rounded-2xl outline-none transition-all text-sm font-medium focus:ring-4 ${
                 !isWithinDeadline && formData.executionDate 
                   ? (isCriticalDeadline ? 'border-red-400 bg-red-50 focus:ring-red-500/10 focus:border-red-500 animate-border-pulse' : 'border-orange-300 bg-orange-50 focus:ring-orange-500/10 focus:border-orange-500')
@@ -295,8 +302,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
             <p className="text-[10px] font-black text-blue-600 mb-3 uppercase tracking-tighter">Duración Cronológica</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-1">Horas</label>
+                <label htmlFor="durationHours" className="block text-[10px] font-black text-slate-400 uppercase ml-1">Horas</label>
                 <input 
+                  id="durationHours"
                   required
                   type="number" 
                   name="durationHours"
@@ -307,8 +315,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-1">Minutos</label>
+                <label htmlFor="durationMinutes" className="block text-[10px] font-black text-slate-400 uppercase ml-1">Minutos</label>
                 <input 
+                  id="durationMinutes"
                   required
                   type="number" 
                   name="durationMinutes"
@@ -330,8 +339,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           <h3 className="text-xs font-black text-blue-500 uppercase tracking-[0.2em]">Categorización</h3>
           
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Motivo Principal</label>
+            <label htmlFor="reason" className="block text-xs font-bold text-slate-500 uppercase ml-1">Motivo Principal</label>
             <select 
+              id="reason"
               name="reason"
               value={formData.reason}
               onChange={handleChange}
@@ -342,8 +352,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Área de Dependencia</label>
+            <label htmlFor="area" className="block text-xs font-bold text-slate-500 uppercase ml-1">Área de Dependencia</label>
             <select 
+              id="area"
               name="area"
               value={formData.area}
               onChange={handleChange}
@@ -354,11 +365,12 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           </div>
 
           <div className="space-y-3">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Remuneración</label>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <span className="block text-xs font-bold text-slate-500 uppercase ml-1">Remuneración</span>
+            <div className="flex flex-col sm:flex-row gap-2" role="group" aria-label="Selección de remuneración">
               <button
                 type="button"
                 onClick={() => setPayStatus(true)}
+                aria-pressed={formData.withPay}
                 className={`flex-1 py-3 px-4 rounded-2xl text-xs font-black uppercase transition-all border ${
                   formData.withPay 
                     ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02]' 
@@ -370,6 +382,7 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
               <button
                 type="button"
                 onClick={() => setPayStatus(false)}
+                aria-pressed={!formData.withPay}
                 className={`flex-1 py-3 px-4 rounded-2xl text-xs font-black uppercase transition-all border ${
                   !formData.withPay 
                     ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-200 scale-[1.02]' 
@@ -386,8 +399,9 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
         <div className="space-y-5">
           <h3 className="text-xs font-black text-blue-500 uppercase tracking-[0.2em]">Información Extra</h3>
           <div className="space-y-1.5 h-full flex flex-col">
-            <label className="block text-xs font-bold text-slate-500 uppercase ml-1">Notas Adicionales</label>
+            <label htmlFor="additionalNotes" className="block text-xs font-bold text-slate-500 uppercase ml-1">Notas Adicionales</label>
             <textarea 
+              id="additionalNotes"
               name="additionalNotes"
               value={formData.additionalNotes}
               onChange={handleChange}
@@ -411,7 +425,7 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           type="submit"
           className="order-1 sm:order-2 flex-[1.5] py-4 bg-blue-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-blue-800 active:scale-95 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
           Procesar Solicitud
