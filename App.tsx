@@ -37,6 +37,8 @@ const DocumentIcon = ({ className }: { className?: string }) => (
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>('IDLE');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(false);
   const [formData, setFormData] = useState<PermissionFormData>(INITIAL_FORM);
   const [aiSummary, setAiSummary] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -89,11 +91,9 @@ const App: React.FC = () => {
 
   const finalizeAndSendDirectly = async () => {
     setIsProcessing(true);
-    // Simulamos un retraso de red para dar sensación de envío real
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     try {
-      // En una app real, aquí se llamaría a una API de backend o servicio de Email (SendGrid/AWS SES)
       const newRecord: PermissionRecord = {
         ...formData,
         id: crypto.randomUUID(),
@@ -109,11 +109,20 @@ const App: React.FC = () => {
     }
   };
 
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 2000);
+  };
+
   const reset = () => {
     setFormData(INITIAL_FORM);
     setAiSummary('');
     setState('IDLE');
+    setShowShareModal(false);
   };
+
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(window.location.href)}`;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
@@ -149,15 +158,26 @@ const App: React.FC = () => {
                 Bienvenido al sistema automatizado. Complete su solicitud y será enviada automáticamente a Coordinación Pedagógica.
               </p>
               
-              <button 
-                onClick={() => setState('FORM')} 
-                className="w-full sm:w-auto px-12 py-5 bg-blue-700 text-white text-lg font-black rounded-2xl hover:bg-blue-800 active:scale-95 transition-all shadow-2xl shadow-blue-200 flex items-center justify-center gap-3 uppercase tracking-widest"
-              >
-                Nueva Solicitud
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
+                <button 
+                  onClick={() => setState('FORM')} 
+                  className="flex-1 sm:flex-none px-12 py-5 bg-blue-700 text-white text-lg font-black rounded-2xl hover:bg-blue-800 active:scale-95 transition-all shadow-2xl shadow-blue-200 flex items-center justify-center gap-3 uppercase tracking-widest"
+                >
+                  Nueva Solicitud
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => setShowShareModal(true)} 
+                  className="flex-1 sm:flex-none px-8 py-5 bg-white border-2 border-slate-200 text-slate-500 text-lg font-bold rounded-2xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-tighter"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  Compartir App
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -199,6 +219,61 @@ const App: React.FC = () => {
                     ))
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Compartir Simplificado */}
+        {showShareModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 max-w-sm w-full shadow-2xl text-center relative animate-in zoom-in duration-300">
+              <button 
+                onClick={() => setShowShareModal(false)}
+                className="absolute top-6 right-6 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Compartir Acceso</h3>
+                <p className="text-xs text-blue-600 font-bold uppercase tracking-widest mt-1">Escanea este código QR</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm mb-8 flex justify-center items-center">
+                <img src={qrUrl} alt="QR de la aplicación" className="w-full h-auto rounded-xl" />
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                  Cualquier educador puede escanear este código para acceder al sistema institucional de permisos.
+                </p>
+                <button 
+                  onClick={copyLink}
+                  className={`w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-2 ${
+                    copyFeedback 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-slate-900 text-white hover:bg-slate-800 active:scale-95'
+                  }`}
+                >
+                  {copyFeedback ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Enlace Copiado
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      Copiar Enlace Manual
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -323,7 +398,7 @@ const App: React.FC = () => {
 
       <footer className="mt-auto py-8 bg-white border-t border-slate-100 text-slate-400 text-center px-4">
         <p className="text-xs sm:text-sm font-medium">&copy; {new Date().getFullYear()} Colegio Salesiano Concepción</p>
-        <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold">Autogestión de Educadores v4.0 • Direct-App Delivery</p>
+        <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold">Autogestión de Educadores v4.1 • Direct Delivery</p>
       </footer>
     </div>
   );
