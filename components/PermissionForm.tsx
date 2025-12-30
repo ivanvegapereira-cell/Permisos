@@ -146,6 +146,7 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
   };
 
   const isWithinDeadline = checkDeadline(formData.requestDate, formData.executionDate);
+  const isCriticalDeadline = formData.executionDate && formData.executionDate === formData.requestDate;
 
   const concurrentRequests = useMemo(() => {
     if (!formData.executionDate) return 0;
@@ -155,7 +156,50 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
   const isCrowdedDay = concurrentRequests >= 2;
 
   return (
-    <form onSubmit={onSubmit} className="bg-white rounded-3xl shadow-lg p-5 sm:p-8 space-y-6 sm:space-y-8 max-w-3xl mx-auto border border-blue-50">
+    <form onSubmit={onSubmit} className="bg-white rounded-3xl shadow-lg p-5 sm:p-8 space-y-6 sm:space-y-8 max-w-3xl mx-auto border border-blue-50 relative">
+      {/* Dynamic Notifications Section - STICKY */}
+      <div className="sticky top-0 z-20 space-y-2 pointer-events-none">
+        {isCrowdedDay && (
+          <div className="pointer-events-auto p-4 bg-red-50 border-b border-red-200 shadow-lg shadow-red-100/50 flex items-center gap-4 animate-in slide-in-from-top-4 duration-300">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-black text-red-800 uppercase tracking-tighter">¡Alerta de Cupos!</p>
+              <p className="text-[10px] text-red-700 font-medium">
+                Ya existen <span className="font-black underline">{concurrentRequests} educadores</span> registrados para el {formData.executionDate}.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {formData.executionDate && !isWithinDeadline && (
+          <div className={`pointer-events-auto p-4 border-b shadow-lg animate-in slide-in-from-top-2 duration-500 ring-2 ring-white ${
+            isCriticalDeadline 
+              ? 'bg-red-600 border-red-700 text-white ring-red-200 animate-pulse-subtle' 
+              : 'bg-orange-500 border-orange-600 text-white shadow-orange-100'
+          }`}>
+            <div className="flex items-center gap-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isCriticalDeadline ? 'bg-white/20' : 'bg-black/10'}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest">Aviso: Fuera de Plazo</p>
+                <p className="text-[11px] opacity-90 leading-tight">
+                  {isCriticalDeadline 
+                    ? 'CRÍTICO: Solicitud para el mismo día. Sujeto a aprobación inmediata.' 
+                    : 'Las solicitudes deben enviarse con 48 horas de anticipación hábil.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-4">
         <div className="space-y-1">
           <h2 className="text-xl sm:text-2xl font-black text-blue-900 tracking-tight flex items-center gap-2">
@@ -165,23 +209,6 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Complete los campos obligatorios</p>
         </div>
       </div>
-
-      {isCrowdedDay && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-4 animate-pulse">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-black text-red-800 uppercase tracking-tighter">¡Alerta de Cupos!</p>
-            <p className="text-xs text-red-700 font-medium">
-              Ya existen <span className="font-black underline">{concurrentRequests} educadores</span> con permiso para el día {formData.executionDate}. 
-              Se recomienda consultar disponibilidad antes de enviar.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Educador Info */}
@@ -258,22 +285,10 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
               onChange={handleChange}
               className={`w-full px-5 py-3 border rounded-2xl outline-none transition-all text-sm font-medium focus:ring-4 ${
                 !isWithinDeadline && formData.executionDate 
-                  ? 'border-orange-300 bg-orange-50 focus:ring-orange-500/10 focus:border-orange-500' 
+                  ? (isCriticalDeadline ? 'border-red-400 bg-red-50 focus:ring-red-500/10 focus:border-red-500 animate-border-pulse' : 'border-orange-300 bg-orange-50 focus:ring-orange-500/10 focus:border-orange-500')
                   : 'bg-slate-50 border-slate-200 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white'
               }`}
             />
-            
-            {formData.executionDate && !isWithinDeadline && (
-              <div className="mt-2 p-4 bg-orange-50 border border-orange-200 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <div className="text-[11px] text-orange-800 leading-tight">
-                  <span className="font-black uppercase block mb-1">Fuera de plazo</span>
-                  Las solicitudes deben realizarse con <span className="font-black">48 horas de anticipación</span> (días hábiles). Esta solicitud podría ser rechazada.
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="pt-2">
@@ -402,6 +417,23 @@ const PermissionForm: React.FC<PermissionFormProps> = ({ formData, setFormData, 
           Procesar Solicitud
         </button>
       </div>
+
+      <style>{`
+        @keyframes pulse-subtle {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.85; }
+        }
+        @keyframes border-pulse {
+          0%, 100% { border-color: rgb(248 113 113); }
+          50% { border-color: transparent; }
+        }
+        .animate-pulse-subtle {
+          animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .animate-border-pulse {
+          animation: border-pulse 1.5s infinite;
+        }
+      `}</style>
     </form>
   );
 };
