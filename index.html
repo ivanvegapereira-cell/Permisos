@@ -3,12 +3,22 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Permisos - Salesiano Concepción</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Polyfill para soporte de importmaps en navegadores móviles antiguos -->
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.10.1/dist/es-module-shims.js"></script>
+
     <script>
-      window.process = { env: { API_KEY: "" } };
+      // Definición segura de proceso para compatibilidad con librerías de Node
+      window.process = { 
+        env: { 
+          NODE_ENV: 'production',
+          API_KEY: '' 
+        } 
+      };
     </script>
     <style>
         body {
@@ -17,18 +27,20 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
         #root:empty::before {
-            content: 'Cargando Sistema...';
+            content: 'Iniciando Sistema...';
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             color: #1e3a8a;
-            font-weight: 900;
-            font-size: 1.25rem;
-            letter-spacing: -0.025em;
+            font-weight: 800;
+            font-size: 1.1rem;
             background: white;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 <script type="importmap">
