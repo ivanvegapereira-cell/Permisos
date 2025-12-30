@@ -39,6 +39,7 @@ const DocumentIcon = ({ className }: { className?: string }) => (
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>('IDLE');
+  const [showAppQR, setShowAppQR] = useState(false);
   const [formData, setFormData] = useState<PermissionFormData>(INITIAL_FORM);
   const [aiSummary, setAiSummary] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -127,6 +128,8 @@ const App: React.FC = () => {
     setState('IDLE');
   };
 
+  const appQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(window.location.href)}`;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
       <header className="sticky top-0 z-40 bg-blue-900 text-white shadow-md w-full">
@@ -160,21 +163,34 @@ const App: React.FC = () => {
               <p className="text-slate-600 max-w-md mb-8 sm:mb-10 text-sm sm:text-base px-2">
                 Use su cámara para escanear el código QR institucional o complete el formulario de solicitud manualmente.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
+              
+              <div className="flex flex-col gap-4 w-full sm:w-auto px-4 sm:px-0">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button 
+                    onClick={startScanning} 
+                    className="w-full sm:w-auto px-10 py-4 bg-blue-700 text-white text-lg font-bold rounded-2xl hover:bg-blue-800 active:scale-95 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    </svg>
+                    Escanear QR
+                  </button>
+                  <button 
+                    onClick={() => setState('FORM')} 
+                    className="w-full sm:w-auto px-10 py-4 bg-white border-2 border-slate-200 text-slate-700 text-lg font-bold rounded-2xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  >
+                    Llenar Manual
+                  </button>
+                </div>
+                
                 <button 
-                  onClick={startScanning} 
-                  className="w-full sm:w-auto px-10 py-4 bg-blue-700 text-white text-lg font-bold rounded-2xl hover:bg-blue-800 active:scale-95 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3"
+                  onClick={() => setShowAppQR(true)}
+                  className="w-full px-6 py-3 bg-slate-100 text-slate-500 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                   </svg>
-                  Escanear QR
-                </button>
-                <button 
-                  onClick={() => setState('FORM')} 
-                  className="w-full sm:w-auto px-10 py-4 bg-white border-2 border-slate-200 text-slate-700 text-lg font-bold rounded-2xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-3"
-                >
-                  Llenar Manual
+                  Compartir Acceso (QR)
                 </button>
               </div>
             </div>
@@ -185,7 +201,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  Estadísticas Institucionales
+                  Estadísticas
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div className="bg-blue-50 p-3 sm:p-4 rounded-2xl">
@@ -203,10 +219,10 @@ const App: React.FC = () => {
 
               <div className="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base sm:text-lg font-bold text-slate-800">Historial Reciente</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800">Recientes</h3>
                   <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full text-slate-500 uppercase font-bold tracking-tighter">Últimos 10</span>
                 </div>
-                <div className="space-y-3 max-h-[250px] sm:max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
                   {history.length === 0 ? (
                     <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                       <p className="text-sm text-slate-400 italic">Sin registros previos.</p>
@@ -226,6 +242,35 @@ const App: React.FC = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal QR de la App */}
+        {showAppQR && (
+          <div className="fixed inset-0 z-[100] bg-blue-900/60 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+            <div className="bg-white p-8 sm:p-12 rounded-[3rem] shadow-2xl max-w-sm w-full text-center relative animate-in zoom-in duration-300">
+              <button 
+                onClick={() => setShowAppQR(false)}
+                className="absolute top-6 right-6 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 active:scale-90 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <div className="mb-6">
+                <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Acceso Directo</h3>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Escanea para abrir la app</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-3xl border-4 border-blue-50 shadow-inner mb-6 flex justify-center">
+                <img src={appQrUrl} alt="QR de la App" className="w-full max-w-[200px] h-auto" />
+              </div>
+
+              <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                Comparte este código con otros educadores para que puedan realizar sus solicitudes rápidamente.
+              </p>
             </div>
           </div>
         )}
@@ -348,7 +393,7 @@ const App: React.FC = () => {
 
       <footer className="mt-auto py-8 bg-white border-t border-slate-100 text-slate-400 text-center px-4">
         <p className="text-xs sm:text-sm font-medium">&copy; {new Date().getFullYear()} Colegio Salesiano Concepción</p>
-        <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold">Autogestión de Educadores v2.8 • Mobile & PC Ready</p>
+        <p className="mt-1 text-[10px] uppercase tracking-tighter font-bold">Autogestión de Educadores v3.0 • Mobile & PC Ready</p>
       </footer>
 
       <style>{`

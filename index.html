@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permisos - Salesiano Concepción</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
-      // Polyfill robusto para evitar errores de 'process is not defined'
-      window.process = { env: {} };
+      window.process = { env: { API_KEY: "" } };
     </script>
     <style>
         body {
@@ -17,26 +16,29 @@
             background-color: #f8fafc;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
         #root:empty::before {
-            content: 'Iniciando sistema...';
+            content: 'Cargando Sistema...';
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             color: #1e3a8a;
-            font-weight: bold;
-            font-size: 1.1rem;
+            font-weight: 900;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+            background: white;
         }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom": "https://esm.sh/react-dom@^19.2.3",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "html5-qrcode": "https://esm.sh/html5-qrcode@^2.3.8",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.34.0",
+    "html5-qrcode": "https://esm.sh/html5-qrcode@2.3.8",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
